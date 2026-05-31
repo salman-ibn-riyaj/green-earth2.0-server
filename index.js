@@ -23,6 +23,19 @@ async function run() {
   try {
     await client.connect();
 
+    const database = client.db("greenEarth");
+    const treesCollection = database.collection("trees");
+
+    // Route
+    app.get("/trees", async (req, res) => {
+        try {
+          const trees = await treesCollection.find().toArray();
+          res.json(trees);
+        } catch (error) {
+          res.status(500).json({ message: "Server error" });
+        }
+      });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
