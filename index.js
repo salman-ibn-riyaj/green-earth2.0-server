@@ -120,6 +120,34 @@ async function run() {
       }
     });
 
+    const cartsCollection = database.collection("carts");
+
+// Cart save/update
+app.post("/api/cart", async (req, res) => {
+  const { userId, items } = req.body;
+  try {
+    await cartsCollection.updateOne(
+      { userId },
+      { $set: { userId, items, updatedAt: new Date() } },
+      { upsert: true }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Cart load
+app.get("/api/cart/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const cart = await cartsCollection.findOne({ userId });
+    res.json({ success: true, items: cart?.items || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
     // Profile update route
     app.post("/api/update-profile", async (req, res) => {
       const { id, name, image } = req.body;
